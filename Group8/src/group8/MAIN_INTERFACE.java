@@ -12,8 +12,12 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
 
     //Globals
     public InventoryList inventoryList;
+    public boolean newItemIsInEditor;
 
     public void InitializeView() {
+        
+        this.notUsingItemEditor();
+        
         inventoryList = new InventoryList(); //Model
         
         jInventoryList.setModel(new javax.swing.AbstractListModel() {
@@ -25,6 +29,20 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         }
         });
 
+    }
+    
+    public boolean inventoryListHasSelection() {
+        int selectedIndex = jInventoryList.getSelectedIndex();
+        return (selectedIndex >= 0);
+    }
+    
+    public void clearItemFields() {
+        jItemNameTF.setText("");
+        jItemIdTF.setText("");
+        jItemSellPriceTF.setText("");
+        jItemStockPriceTF.setText("");
+        jItemCountTF.setText("");
+        jItemWeightTF.setText("");
     }
     
     public void DisableItemFields() {
@@ -61,9 +79,14 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
     }
     
     public void notUsingItemEditor() {
+        
+        if (this.inventoryListHasSelection()){
+            jEditButton.setEnabled(true);
+        } else jEditButton.setEnabled(false);
+        
         jCancelButton.setEnabled(false);
         jUpdateAddButton.setEnabled(false);
-        jEditButton.setEnabled(true);
+        //jEditButton.setEnabled(true);
         jNewItemButton.setEnabled(true);
         this.DisableItemFields();
         jInventoryList.setEnabled(true);
@@ -75,6 +98,17 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         Item item = inventoryList.getItemAtIndex(selectedIndex);
         item.itemName = jItemNameTF.getText();
         //no need to reloadTableView
+    }
+    
+    public void copyItemInfoToEditor() {
+        int selectedIndex = jInventoryList.getSelectedIndex();
+        Item item = inventoryList.getItemAtIndex(selectedIndex);
+        jItemNameTF.setText(item.getItemName());
+        jItemIdTF.setText(Integer.toString(item.itemID));
+        jItemSellPriceTF.setText(Float.toString(item.itemSellPrice));
+        jItemStockPriceTF.setText(Float.toString(item.itemBuyPrice));
+        jItemCountTF.setText(Integer.toString(item.itemCount));
+        jItemWeightTF.setText(Float.toString(item.itemWeight));
     }
     
     //@Override
@@ -153,9 +187,9 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
-        jInventoryList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                jInventoryListValueChanged(evt);
+        jInventoryList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jInventoryListMouseClicked(evt);
             }
         });
         jInventoryListPane.setViewportView(jInventoryList);
@@ -291,10 +325,20 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         jUpdateAddButton.setBounds(170, 220, 140, 29);
 
         jNewItemButton.setText("New Item");
+        jNewItemButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jNewItemButtonActionPerformed(evt);
+            }
+        });
         jPanel1.add(jNewItemButton);
         jNewItemButton.setBounds(10, 250, 140, 29);
 
         jCancelButton.setText("Cancel");
+        jCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCancelButtonActionPerformed(evt);
+            }
+        });
         jPanel1.add(jCancelButton);
         jCancelButton.setBounds(170, 250, 140, 29);
 
@@ -344,18 +388,6 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         jButton1.setBounds(30, 390, 70, 29);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jInventoryListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jInventoryListValueChanged
-        // TODO add your handling code here:
-        int selectedIndex = jInventoryList.getSelectedIndex();
-        Item item = inventoryList.getItemAtIndex(selectedIndex);
-        jItemNameTF.setText(item.getItemName());
-        jItemIdTF.setText(Integer.toString(item.itemID));
-        jItemSellPriceTF.setText(Float.toString(item.itemSellPrice));
-        jItemStockPriceTF.setText(Float.toString(item.itemBuyPrice));
-        jItemCountTF.setText(Integer.toString(item.itemCount));
-        jItemWeightTF.setText(Float.toString(item.itemWeight));
-    }//GEN-LAST:event_jInventoryListValueChanged
-
     private void jEditButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEditButtonActionPerformed
         // TODO add your handling code here:
         this.usingItemEditor();
@@ -367,6 +399,35 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         this.notUsingItemEditor();
         this.handelItemUpdate();
     }//GEN-LAST:event_jUpdateAddButtonActionPerformed
+
+    private void jCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCancelButtonActionPerformed
+        // TODO add your handling code here:
+        this.notUsingItemEditor();
+        
+        if (this.newItemIsInEditor) {
+            this.clearItemFields();
+            this.newItemIsInEditor = false;
+        } else this.copyItemInfoToEditor();
+        
+    }//GEN-LAST:event_jCancelButtonActionPerformed
+
+    private void jNewItemButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jNewItemButtonActionPerformed
+        // TODO add your handling code here:
+        
+        this.clearItemFields();
+        jInventoryList.clearSelection();
+        this.newItemIsInEditor = true;
+        this.usingItemEditor();
+        
+    }//GEN-LAST:event_jNewItemButtonActionPerformed
+
+    private void jInventoryListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jInventoryListMouseClicked
+        // TODO add your handling code here:
+        if (jInventoryList.isEnabled()) {
+            jEditButton.setEnabled(true);
+            this.copyItemInfoToEditor();
+        }
+    }//GEN-LAST:event_jInventoryListMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
