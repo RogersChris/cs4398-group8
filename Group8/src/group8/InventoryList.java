@@ -38,7 +38,7 @@ public class InventoryList {
     }
     
     public void addNewItem (Item item) {
-        
+        list.add(item);
     } 
     
     public Item getItemAtIndex (int index){

@@ -20,6 +20,11 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
         
         inventoryList = new InventoryList(); //Model
         
+        this.updateTableView();
+
+    }
+    
+    public void updateTableView() {
         jInventoryList.setModel(new javax.swing.AbstractListModel() {
         public int getSize() { 
             return inventoryList.getSize(); 
@@ -28,7 +33,6 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
             return inventoryList.getItemAtIndex(i).getItemName();
         }
         });
-
     }
     
     public boolean inventoryListHasSelection() {
@@ -395,9 +399,21 @@ public class MAIN_INTERFACE extends javax.swing.JApplet {
 
     private void jUpdateAddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jUpdateAddButtonActionPerformed
         // TODO add your handling code here:
-        System.out.print("Add/Update");
+        
+        if(this.newItemIsInEditor) {
+            System.out.print("Add");
+            Item newItem = new Item();
+            newItem.itemName = jItemNameTF.getText();
+            inventoryList.addNewItem(newItem);
+            this.updateTableView();
+            this.clearItemFields();
+            this.newItemIsInEditor = false;
+        } else {
+            System.out.print("Update");
+            this.handelItemUpdate();
+        }
         this.notUsingItemEditor();
-        this.handelItemUpdate();
+        
     }//GEN-LAST:event_jUpdateAddButtonActionPerformed
 
     private void jCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCancelButtonActionPerformed
